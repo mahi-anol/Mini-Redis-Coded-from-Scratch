@@ -13,7 +13,17 @@ class CommandHandler:
             "EXISTS":self.exists,
             "KEYS":self.keys,
             "FLUSHALL":self.flushall,
-            "INFO":self.info
+            "INFO":self.info,
+            "EXPIRE":self.expire,
+            "EXPIREAT":self.expireat,
+            "TTL":self.ttl,
+            "PTTL":self.pttl,
+            "PERSIST":self.persist,
+            "TYPE":self.get_type,
+            ### Persistance commands
+            "BGREWRITEAOF":self.bgrewriteaof,
+            "CONFIG":self.config_command,
+            "DEBUG":self.debug_command
         }
     
     def execute(self,command,*args):
@@ -57,6 +67,18 @@ class CommandHandler:
     def flushall(self, *args):
         self.storage.flush()
         return ok()
+    
+    def expire(self,*args):
+        if len(args)!=2:
+            return error("Wrong number of arguments for 'expire' command")
+        
+        key=args[0]
+        try:
+            seconds=int(args[1])
+            if seconds<=0:
+                return integer(0)
+            success=self.storage.expire(key,seconds)
+        
     
     def info(self, *args):
         info = {
