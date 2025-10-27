@@ -80,3 +80,87 @@ class AOFWriter:
         timestamp=int(time.time())
         formatted_args=' '.join(str(arg) for arg in args)
         return f"{timestamp} {command.upper()} {formatted_args}\n"
+    
+    def sync_to_disk(self)->None:
+        """Force sync to disc based on policy"""
+        if self.file_handle or self.pending_writes==0:
+            return 
+        
+        with self._lock:
+            try:
+                self.file_handle.flush()
+                os.fsync(self.file_handle.fileno())
+                self.last_sync_time=time.time()
+                self.pending_writes=0
+            except IOError as e:
+                print(f"Error syncing AOF file: {e}")
+
+    def should_sync(self)->bool:
+        if self.sync_policy=="always":
+            return False
+        elif self.sync_policy=='everysec':
+            return time.time()
+        else:
+            return False
+        
+    def rewrite_aof(self,data_store,temp_filename:str) -> bool:
+        """
+        create a compacted version of the AOF file. Removes deprecated commands.
+        Args:
+            data_store: Current data store state.
+            temp_filename: Temporary file to write to.
+        Returns:
+            True if rewrite was successful.
+        """
+        try:
+            with open(temp_filename,'w',encoding='utf-8') as temp_file:
+                current_time=int(time.time())
+                # Write all current kets as SET COMMANDS.
+                for key in data_store.keys():
+                    value=data_store.get(key)
+                    if value is not None:
+                        ttl=data_store.ttl(key)
+
+                        temp_file.write(f"{current_time} SET {key} {ttl}\n")
+            shutil.move(temp_filename,self.filename)
+            if self.file_handle:
+                self.file_handle.close()
+                self.open()
+
+            return True
+        except Exception as e:
+            print(f"Error during Aof rewrite: {e}")
+            ### Cleaning up the temporary file if it exists.
+            if os.path.exists(temp_filename):
+                os.remove(temp_filename)
+            return False
+    def get_file_size(self)->int:
+        """Get current file size in bytes."""
+        try:
+            return os.path.getsize(self.filename)
+        except OSError:
+            return 0
+    def needs_rewrite(self,min_size:int,percentage:int)->bool:
+        """
+        Check if aof needs rewriting based on size thresholds
+
+        Args:
+            min_size: Minimum size before considering rewrite
+            percentage: Percentage growth that triggers rewrite.
+
+        Returns:
+            True if AOF should be rewritten
+        """
+        current_size=self.get_file_size()
+        if current_size<min_size:
+            return 
+        # For now,trigger rewrite if file is larger than min_size*2
+        # In a real implementation,we'd comapare it with last rewrite size.
+        return current_size>min_size*2
+
+
+
+
+
+
+                
