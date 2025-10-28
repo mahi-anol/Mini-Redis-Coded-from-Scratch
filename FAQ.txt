@@ -14,3 +14,5 @@ It only tracked key and value.
 7. select.select....read kongula ar write kongula.....
 
 8> should w e add more valdiation on the the presistance module,
+
+9. Command.py er execute method e command er count agei keno rakhtesi.

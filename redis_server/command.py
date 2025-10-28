@@ -1,13 +1,13 @@
-from .storage import DataStore
+from .storage import DataStore  
 from .response import *
 import time
 class CommandHandler:
     def __init__(self,storage,persistance_manager=None):
-        self.storage=storage
-        self.persistance_manager=persistance_manager
-        self.command_count=0
+        self.storage=storage # The central storage where the operation will take place.
+        self.persistance_manager=persistance_manager # We need to track what write commands we are performing for persistance. 
+        self.command_count=0 # Number of commands we performed so far.
         self.commands={
-            "PING":self.ping,
+            "PING":self.ping, 
             "ECHO":self.echo,
             "SET":self.set,
             "GET":self.get,
@@ -16,6 +16,7 @@ class CommandHandler:
             "KEYS":self.keys,
             "FLUSHALL":self.flushall,
             "INFO":self.info,
+            ### TTL+ Expire functionalities
             "EXPIRE":self.expire,
             "EXPIREAT":self.expireat,
             "TTL":self.ttl,
@@ -25,7 +26,7 @@ class CommandHandler:
             ### Persistance commands
             "BGREWRITEAOF":self.bgrewriteaof,
             "CONFIG":self.config_command,
-            "DEBUG":self.debug_command
+            "DEBUG":self.debug_command,
         }
     
     def execute(self,command,*args):
@@ -33,22 +34,34 @@ class CommandHandler:
         cmd=self.commands.get(command.upper())
         if cmd:
             result = cmd(*args)
-
             if self.persistance_manager:
                 self.persistance_manager.log_write_command(command,*args)
-
             return result
         return error(f"unknown command '{command}'")
     
     def ping(self,*args):
         return pong()
+    
     def echo(self,*args):
         return simple_string(" ".join(args)) if args else simple_string("")
     
     def set(self,*args):
         if len(args)<2:
+            ### set command expects more than 2 arguments...
             return error("wrong number of arguments for 'set' command")
-        self.storage.set(args[0]," ".join(args[1:]))
+        key=args[0]
+        value=" ".join(args[1:])
+
+        ### parse optional EX parameter for expiration in seconds.
+        expiry_time=None
+        if len(args)>=4 and args[-2].upper()=="EX":
+            try:
+                seconds = int(args[-1])
+                expiary_time=time.time()+seconds
+                value=" ".join(args[1:-2])
+            except ValueError:
+                return error("Invalid expire time in set.")
+        self.storage.set(key,value,expiary_time) ### performing set on the storage
         return ok()
     
     def get(self, *args):
@@ -181,3 +194,72 @@ class CommandHandler:
         return bulk_string("\r\n".join(sections))
 
     # persistence commands
+    def bgrewrite(self,*args):
+        """Background AOF rewrite"""
+        if not self.persistance_manager:
+            return error("Persistence not enabled.")
+        try:
+            success=self.persistance_manager.rewrite_aof_background(self.storage)
+            if success:
+                return simple_string("Background AOF rewrite started.")
+            else:
+                return error("Background AOF rewrite failed to start")
+        except Exception as e:
+            return error(f"bgrewriteaof error: {e}")
+    
+    def config_command(self,*args):
+        """CONFIG command for persistence settings"""
+        if not args:
+            return error("wrong number of arguments for 'config' command")
+        subcommand=args[0].upper()
+
+        if subcommand == "GET":
+            if len(args)!=2:
+                return error("wrong number of arguments for 'config get' command")
+            parameter=args[1].lower()
+            if self.persistance_manager:
+                config_value= self.persistance_manager.config.get(parameter)
+                if config_value is not None:
+                    return array([bulk_string(parameter),bulk_string(str(config_value))])
+            return array([])
+        
+        elif subcommand=="SET":
+            if len(args)!=3:
+                return error("wrong number of arguments for 'config set' command")
+            parameter=args[1].lower()
+            value=args[2]
+
+            if self.persistance_manager:
+                try:
+                    if parameter in ['aof_enabled','persistence_enabled']:
+                        value=value.lower() in ('true',1,'yes','on')
+                    self.persistance_manager.config.set(parameter,value)
+                    return ok()
+                except Exception as e:
+                    return error(f"config set error: {e}")
+            return error("persistance not enabled")
+        else:
+            return error(f"unknown CONFIG subcommand '{subcommand}'")
+
+    def debug_command(self,*args):
+        """DEBUG command for development/testing"""
+
+        if not args:
+            return error("wrong number of arguments for 'debug' command")
+
+        subcommand=args[0].upper()
+        if subcommand=="RELOAD":
+            if self.persistance_manager:
+                try:
+                    success=self.persistance_manager.recover_data(self.storage,self)
+                    if success:
+                        return ok()
+                    else:
+                        return error("reload failed")
+                    
+                except Exception as e:
+                    return error(f"reload error: {e}")
+            else:
+                return error("persistence not enabled")
+        else:
+            return error(f"Unknown DEBUG subcommand '{subcommand}'")
