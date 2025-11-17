@@ -16,7 +16,7 @@ class RedisServer:
         self.storage = DataStore()
 
         #initialize persistence
-        self.persistence_config=persistence_config or PersistenceConfig
+        self.persistence_config=persistence_config or PersistenceConfig() # Either pass a persistence config to redis server, otherwise use the existing one.
         self.persistence_manager=PersistenceManager(self.persistence_config)
 
         # Command handler needs refernce to persistence manger for logging.
@@ -24,7 +24,7 @@ class RedisServer:
 
         self.last_cleanup_time=time.time()
         self.last_persistence_time=time.time()
-        self.cleanup_interval=0.1
+        self.cleanup_interval=0.1 # 100ms interval
         self.persistence_interval=0.1
 
     def start(self):
@@ -89,10 +89,14 @@ class RedisServer:
             print(f"Error during persistance tasks: {e}")
 
     def _accept_client(self):
-        client, addr = self.server_socket.accept()
-        client.setblocking(False)
-        self.clients[client] = {"addr": addr, "buffer": b""}
-        client.send(b"+OK\r\n")
+        try:
+            client, addr = self.server_socket.accept()
+            client.setblocking(False)
+            self.clients[client] = {"addr": addr, "buffer": b""}
+            client.send(b"+OK\r\n")
+            print(f"A client is connected from {addr}")
+        except Exception as e:
+            print(f"Error accepting client from: {e}")
 
     def _handle_client(self, client):
         try:

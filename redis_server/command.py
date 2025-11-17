@@ -192,6 +192,14 @@ class CommandHandler:
             sections.extend(f"{k}:{v}" for k,v in data.items())
             sections.append("")
         return bulk_string("\r\n".join(sections))
+    
+    def _format_bytes(self,bytes_count):
+        """Format bytes in human readable format"""
+        for unit in ['B','K','M','G']:
+            if bytes_count < 1024:
+                return f"{bytes_count:.1f}{unit}"
+            bytes_count/=1024
+        return f"{bytes_count:.1f}T"  # Im assuming it wont go beyond terabyte.
 
     # persistence commands
     def bgrewrite(self,*args):
