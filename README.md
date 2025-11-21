@@ -29,13 +29,11 @@
 
 ### Clone the repository
 ```bash
-git clone https://github.com/mahi-anol/mini-redis-from-first-principal.git
-cd mini-redis-from-first-principal
+git clone https://github.com/mahi-anol/Mini-Redis-Coded-from-Scratch.git
 ```
-
 ## Go to project dir
 ```
-cd mini-redis-from-first-principal
+cd Mini-Redis-Coded-from-Scratch.git
 ```
 ## Installing virtual Environment (optional)
 ```
