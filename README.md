@@ -2,12 +2,11 @@
 
 # Mini Redis by Mahi
 
-[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/mahi-anol/mini-redis-from-first-principal/python-tests.yml)](https://github.com/mahi-anol/mini-redis-from-first-principal/actions)
-[![Coverage](https://img.shields.io/badge/coverage-0%25-red)]() <!-- replace with coverage badge if available -->
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 
-A **minimal Redis clone implemented from scratch in Python**, supporting the main Redis functionalities such as `SET`, `GET`, `DEL`, `EXPIRE`, lists, and pub/sub. Designed for learning, experimentation, and automated testing.
+A **minimal Redis like system implemented from scratch in Python**, supporting the main Redis functionalities such as `SET`, `GET`, `DEL`, `EXPIRE`, lists, and pub/sub. Designed for learning, experimentation, and automated testing.
 
+This project is implemented as a coursework of a Backend Engineering course Im doing online.
 ---
 
 ## Table of Contents
@@ -23,11 +22,14 @@ A **minimal Redis clone implemented from scratch in Python**, supporting the mai
 ---
 
 ## Features
-
+- Single threaded event loop based multi client concurrency.
 - Core Redis commands:
   - `SET`, `GET`, `DEL`, `EXPIRE`
   - List operations: `LPUSH`, `LPOP`
+  - SET, HASH Data structure operations.
   - Pub/Sub: `PUBLISH`, `SUBSCRIBE`
+- TTL , PTTL implementation + lazy expiration.
+- RDB and AOF backup/snapshots + recovery on startup.
 - TCP server that can be connected via **telnet** or programmatically
 - Automated tests with **pytest**
 - Editable installation for development (`pip install -e .`)
@@ -41,3 +43,66 @@ A **minimal Redis clone implemented from scratch in Python**, supporting the mai
 ```bash
 git clone https://github.com/mahi-anol/mini-redis-from-first-principal.git
 cd mini-redis-from-first-principal
+```
+
+## Go to project dir
+```
+cd mini-redis-from-first-principal
+```
+
+## Installing virtual Environment (optional)
+```
+# Windows
+python -m venv .venv
+.\.venv\Scripts\activate
+
+# Linux/macOS
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+
+## Installing package
+```
+# Windows
+pip install .
+# linux
+pip3 install .
+```
+
+## Open 2 terminal
+```
+##  In first terminal do:
+# For Windows
+python main.py
+
+# For linux
+python3 main.py
+```
+
+## Now in other terminal do:
+```
+telnet localhost 6379
+# After this we are connected to the server.
+```
+
+## Now we can try redis commands
+```
+PING
+SET A 5
+GET A
+LPUSH B a b c d e
+```
+
+---
+
+## TODOs:
+- Implementing the pattern based PUB SUB methods.
+- creating better documentation.
+
+
+## Author
+**Mahi Sarwar Anol**  
+- Email: anol.mahi@gmail.com  
+- GitHub: [mahi-anol](https://github.com/mahi-anol)  
+- LinkedIn: [Mahi Sarwar Anol](https://www.linkedin.com/in/mahi-anol)  

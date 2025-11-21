@@ -33,7 +33,7 @@ class PersistenceConfig:
         """Get default persistence configuration"""
         return {
             # AOF Configuration
-            'aof_enabled': False,
+            'aof_enabled': True,
             'aof_filename': 'appendonly.aof',
             'aof_sync_policy': 'everysec',  # 'always', 'everysec', 'no'
             'aof_rewrite_percentage': 100,  # Auto rewrite when AOF is 100% larger
