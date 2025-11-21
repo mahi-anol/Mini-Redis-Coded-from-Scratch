@@ -51,7 +51,7 @@ class RecoveryManager:
             # AOF takes precedence over RDB
             if aof_exists:
                 print(f"Loading data from AOF file: {self.aof_filename}")
-                return self._replay(data_store,command_handler)
+                return self._replay_aof(data_store,command_handler)
             
             elif rdb_exists:
                 print(f"Loading data from RDB file: {self.rdb_filename}")
@@ -129,7 +129,7 @@ class RecoveryManager:
 
                         timestamp=parts[0]
                         command=parts[1].upper()
-                        args=parts[2].spilt() if len(parts) > 2 else []
+                        args=parts[2].split() if len(parts) > 2 else []
 
                         # Execute command directly on data store
                         self._execute_recovery_command(datastore,command,args)
@@ -147,7 +147,7 @@ class RecoveryManager:
             return False
 
 
-    def _execute_recover_command(self,data_store,command:str,args:list)->None:
+    def _execute_recovery_command(self,data_store,command:str,args:list)->None:
         """
         Execute a single recovery command on the data store.
         Args:

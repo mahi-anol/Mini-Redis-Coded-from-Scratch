@@ -16,7 +16,7 @@ class PersistenceManager:
 
     """Main persistence manager coordinating AOF,RDB and recovery operations"""
 
-    def __init___(self,config:Optional[PersistenceConfig]=None):
+    def __init__(self,config:Optional[PersistenceConfig]=None):
         """
         Initialize persistence manager
 
@@ -41,7 +41,7 @@ class PersistenceManager:
         self._lock=threading.Lock()
 
         # Initialize components based on configuration
-        self._initialize_componenets()
+        self._initialize_components()
         
     def _initialize_components(self)-> None:
         """Initialize persistence components based on configuration"""
@@ -132,7 +132,7 @@ class PersistenceManager:
         # Handle automatic RDB saves
         if self.rdb_handler:
             if self.config.should_auto_rdb_save(self.changes_since_save,self.last_rdb_save_time):
-                print(f"Auto-saving RDB: {self.changes_since_save} changes in {current_time-self.last_rdb_save_time:1.f}s")
+                print(f"Auto-saving RDB: {self.changes_since_save} changes in {current_time-self.last_rdb_save_time:.1f}s")
                 if self.create_rdb_snapshot_background():
                     self.changes_since_save=0
                     self.last_rdb_save_time=current_time

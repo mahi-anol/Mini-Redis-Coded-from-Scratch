@@ -3,12 +3,12 @@ import select
 import time
 from .command_handler import CommandHandler
 from .storage import DataStore
-from .persistence import PersistanceManager,PersistantConfig
+from .persistence import PersistenceManager,PersistenceConfig
 from .pubsub import PubSubManager
 
 
 class RedisServer:
-    def __init__(self,host,port=6397,persistant_config=None):
+    def __init__(self,host='localhost',port=6379,persistence_config=None):
         self.host=host
         self.port=port
         self.running=False
@@ -20,12 +20,12 @@ class RedisServer:
         self.pubsub_manager=PubSubManager()
 
         # Initialize Persistence        
-        self.persistant_config=persistant_config or PersistantConfig() #default or custom.
-        self.persistant_manager=PersistanceManager(self.persistant_config)
+        self.persistence_config=persistence_config or PersistenceConfig() #default or custom.
+        self.persistence_manager=PersistenceManager(self.persistence_config)
 
         # command handler needs reference to persistence manager and pubsub manager.
 
-        self.command_handler=CommandHandler(self.storage,self.persistant_manager,self.pubsub_manager)
+        self.command_handler=CommandHandler(self.storage,self.persistence_manager,self.pubsub_manager)
         
 
         # Extras
