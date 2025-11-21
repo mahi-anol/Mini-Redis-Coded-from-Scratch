@@ -76,6 +76,8 @@ GET A
 LPUSH B a b c d e
 GET B
 ```
+<p> when you stop the server and restart again you'll see that the server is storing the state from backups and and key value pair will be restored along with their meta data. </p>
+
 ---
 ## TODOs:
 - Implementing the pattern based PUB SUB methods.
