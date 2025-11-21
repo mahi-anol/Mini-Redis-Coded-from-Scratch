@@ -1,24 +1,15 @@
 # mini-redis-from-first-principal
 
-# Mini Redis by Mahi
-
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 
 A **minimal Redis like system implemented from scratch in Python**, supporting the main Redis functionalities such as `SET`, `GET`, `DEL`, `EXPIRE`, lists, and pub/sub. Designed for learning, experimentation, and automated testing.
 
-This project is implemented as a coursework of a Backend Engineering course Im doing online.
 ---
 
-## Table of Contents
-
-- [Features](#features)  
-- [Installation](#installation)  
-- [Usage](#usage)  
-- [Testing](#testing)  
-- [Project Structure](#project-structure)  
-- [Contributing](#contributing)  
-- [License](#license)  
-
+## Experience while doing the project + learnings:
+- It took almost 1.5 months to complete this project while maintaing a full time job. Although I could have finished it earlier, but I was doing multiple other personal projects which are focused towards MLOPS and ML/ Deep Learning research.
+- learnt in depth about python GIL/Concurrency (threading), multi client handling etc.
+- Tried to ensure modularized coding structure as much as possible.
 ---
 
 ## Features
@@ -92,6 +83,7 @@ PING
 SET A 5
 GET A
 LPUSH B a b c d e
+GET B
 ```
 
 ---
