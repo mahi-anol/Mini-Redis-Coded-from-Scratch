@@ -1,28 +1,44 @@
-# mini-redis-from-first-principal
+# Mini Redis
 
 [![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 
-<p> A minimal Redis like system implemented from scratch in Python supporting the main Redis functionalities such as `SET`, `GET`, `DEL`, `EXPIRE`, lists, and pub/sub, Backup/recovery, multi-client concurrency.</p>
+A Redis implementation built from scratch in Python with support for core Redis commands, data structures, persistence, and pub/sub messaging.
 
-## Features that are included so far:
-- Single threaded event loop based multi client concurrency.
-- Core Redis commands:
-  - `SET`, `GET`, `DEL`, `EXPIRE`
-  - List operations: `LPUSH`, `LPOP`
-  - SET, HASH Data structure operations.
-  - Pub/Sub: `PUBLISH`, `SUBSCRIBE`
-- TTL , PTTL implementation + lazy expiration.
-- Redis Native Data structures.
-- RDB and AOF backup/snapshots + recovery on startup.
-- TCP server that can be connected via **telnet** or programmatically
-- Automated tests with **pytest**
----
+## Features
 
-## Experience while doing the project + learnings: 
-- It took almost 1.5 months to complete this project while maintaing a full time job. Although I could have finished it earlier, but I was doing multiple other personal projects which are focused towards MLOPS and ML/ Deep Learning research. In Each weeknd I implemeted a specific feature which was maintainted in there corresponding git branch, if you are interested in specifc feature you can find it in the corresponding branch of the github repo.
-- Tried to learn in depth about python GIL/Concurrency (threading), multi client handling etc.
-- Learned some new design patterns and tried to ensure modularized coding structure as much as possible.
----
+- Non-blocking event loop for concurrent multi-client connections
+- Core Redis commands: SET, GET, DEL, EXPIRE, KEYS, EXISTS
+- Data structures: Lists, Hashes, Sets
+- Key expiration with TTL/PTTL
+- Pub/Sub messaging system
+- Persistence: RDB snapshots and AOF (Append-Only File)
+- Data recovery on startup
+- TCP server compatible with telnet and Redis clients
+- Test suite with pytest
+
+## System Overview
+
+The system is organized into distinct layers that handle different concerns:
+
+**Server Layer**: Non-blocking event loop using select() for managing multiple concurrent client connections over TCP.
+
+**Command Layer**: Command dispatcher that routes incoming Redis commands to specialized handlers for basic operations, lists, hashes, sets, expiration, persistence, info, and pub/sub.
+
+**Storage Layer**: In-memory key-value store with type tracking, expiration management, and memory usage statistics.
+
+**Persistence Layer**: Coordinates RDB snapshots and AOF logging with configurable sync policies. Includes recovery manager for data restoration.
+
+**Pub/Sub Layer**: Manages channel subscriptions and publishes messages to subscribers in real-time.
+
+**Response Layer**: RESP protocol implementation for formatting server responses.
+
+### System Architecture Diagram
+
+![System Architecture Diagram](Assests/System-Diagram.svg)
+
+## Project Context
+
+Built as a learning project to understand Redis internals and Python concurrency patterns. Implemented over several months with features added in incremental stages across git branches.
 ## Installation
 
 ### Clone the repository
